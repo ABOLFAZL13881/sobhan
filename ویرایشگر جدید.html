@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم جامع طراحی لباس سفارشی</title>
+    
+    <!-- CDN ها -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, #1f2937 0%, #374151 100%);
+            color: white;
+            padding: 20px 30px;
+            border-bottom: 3px solid #3b82f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: #3b82f6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            gap: 20px;
+            padding: 20px;
+            height: 85vh;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            background: #f9fafb;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            background: #f1f5f9;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #main-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: transparent !important;
+        }
+
+        /* Canvas Controls */
+        .canvas-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #374151;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            background: #f9fafb;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Panel Sections */
+        .panel-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'Vazirmatn', sans-serif;
+            font-weight: 600;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #3b82f6;
+        }
+
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #3b82f6;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(59, 130, 246, 0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #8b5cf6;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #3b82f6;
+            margin-bottom: 15px;
+        }
+
+        /* Text Controls */
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .font-item {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .font-item:hover {
+            border-color: #3b82f6;
+        }
+
+        .font-item.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            font-weight: 600;
+        }
+
+        /* Color Grid */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .color-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-item:hover {
+            transform: scale(1.1);
+        }
+
+        .color-item.active {
+            border-color: #1f2937;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Image Controls */
+        .image-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .image-btn {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .image-btn:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .image-btn i {
+            font-size: 18px;
+        }
+
+        /* Size Controls */
+        .size-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .size-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .size-btn:hover {
+            border-color: #3b82f6;
+        }
+
+        .size-btn.active {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: white;
+        }
+
+        /* Slider Controls */
+        .slider-group {
+            margin: 20px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Vazirmatn', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Object List */
+        .object-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .object-item {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .object-item:hover {
+            background: #f9fafb;
+        }
+
+        .object-item.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .object-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Clothing Templates */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .template-item {
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-item:hover {
+            border-color: #3b82f6;
+            transform: translateY(-3px);
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 80px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Preset Sizes */
+        .size-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .size-preset {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .size-preset:hover {
+            border-color: #3b82f6;
+        }
+
+        .size-preset.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            font-weight: 600;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: -40px;
+            right: 50%;
+            transform: translateX(50%);
+            background: #1f2937;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .main-content {
+                grid-template-columns: 300px 1fr;
+            }
+            .right-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .left-panel {
+                display: none;
+            }
+            .right-panel {
+                display: block;
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                width: 90%;
+                max-width: 400px;
+                height: 80vh;
+                z-index: 1000;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+                display: none;
+            }
+            .right-panel.active {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .canvas-controls {
+                top: 10px;
+                right: 10px;
+                padding: 10px;
+                gap: 5px;
+            }
+            
+            .control-btn {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <div class="brand">طراح لباس سفارشی - متن و تصویر</div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-warning" id="togglePanelBtn">
+                    <i class="fas fa-sliders-h"></i>
+                    تنظیمات
+                </button>
+                <button class="btn btn-success" id="saveBtn">
+                    <i class="fas fa-download"></i>
+                    ذخیره طرح
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel -->
+            <aside class="left-panel">
+                <!-- Clothing Templates -->
+                <div class="panel-section">
+                    <div class="section-title">
+                        <i class="fas fa-tshirt"></i>
+                        قالب لباس
+                    </div>
+                    
+                    <div class="template-grid">
+                        <div class="template-item" data-template="tshirt-white">
+                            <div class="template-preview" style="background-image: url('https://cdn.modiseh.com/unsafe/medium/ch6783/ch6783_1_.jpg');"></div>
+                            <div>تیشرت سفید</div>
+                        </div>
+                        
+                        <div class="template-item" data-template="tshirt-black">
+                            <div class="template-preview" style="background-image: url('https://cdn.modiseh.com/unsafe/medium/ch6774/ch6774_1_.jpg');"></div>
+                            <div>تیشرت مشکی</div>
+                        </div>
+                        
+                        <div class="template-item" data-template="hoodie-gray">
+                            <div class="template-preview" style="background-image: url('https://cdn.modiseh.com/unsafe/medium/ch6776/ch6776_1_.jpg');"></div>
+                            <div>هودی خاکستری</div>
+                        </div>
+                        
+                        <div class="template-item" data-template="polo-blue">
+                            <div class="template-preview" style="background-image: url('https://cdn.modiseh.com/unsafe/medium/ch6775/ch6775_1_.jpg');"></div>
+                            <div>پولو آبی</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100 mt-3" id="uploadClothingBtn">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        آپلود لباس سفارشی
+                    </button>
+                    <input type="file" id="clothingUpload" accept="image/*" style="display: none;">
+                </div>
+
+                <!-- Image Upload -->
+                <div class="panel-section">
+                    <div class="section-title">
+                        <i class="fas fa-image"></i>
+                        آپلود تصویر
+                    </div>
+                    
+                    <div class="upload-area" id="imageUploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div style="font-weight: 600; margin-bottom: 10px; color: #1f2937;">
+                            تصویر خود را اینجا رها کنید یا کلیک کنید
+                        </div>
+                        <div style="color: #6b7280; font-size: 14px;">
+                            فرمت‌های مجاز: JPG, PNG, SVG, GIF
+                            <br>
+                            حداکثر سایز: 10MB
+                        </div>
+                        <input type="file" id="imageUpload" accept="image/*" style="display: none;" multiple>
+                    </div>
+                    
+                    <button class="btn btn-secondary w-100" id="addSampleImageBtn">
+                        <i class="fas fa-plus-circle"></i>
+                        افزودن تصویر نمونه
+                    </button>
+                </div>
+
+                <!-- Object Management -->
+                <div class="panel-section">
+                    <div class="section-title">
+                        <i class="fas fa-layer-group"></i>
+                        مدیریت اشیاء
+                    </div>
+                    
+                    <div class="object-list" id="objectList">
+                        <!-- Objects will be added here -->
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-danger flex-1" id="deleteSelectedBtn">
+                            <i class="fas fa-trash"></i>
+                            حذف
+                        </button>
+                        <button class="btn btn-secondary flex-1" id="duplicateBtn">
+                            <i class="fas fa-copy"></i>
+                            کپی
+                        </button>
+                        <button class="btn btn-warning flex-1" id="bringToFrontBtn">
+                            <i class="fas fa-arrow-up"></i>
+                            جلو
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Canvas Area -->
+            <main class="canvas-area">
+                <!-- Loading -->
+                <div class="loading" id="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>در حال بارگذاری...</p>
+                </div>
+
+                <!-- Canvas Controls -->
+                <div class="canvas-controls">
+                    <button class="control-btn tooltip" id="selectBtn" data-tooltip="انتخاب" title="انتخاب">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </button>
+                    <button class="control-btn tooltip" id="zoomInBtn" data-tooltip="بزرگنمایی" title="بزرگنمایی">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="control-btn tooltip" id="zoomOutBtn" data-tooltip="کوچکنمایی" title="کوچکنمایی">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="control-btn tooltip" id="resetViewBtn" data-tooltip="بازنشانی" title="بازنشانی">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button class="control-btn tooltip" id="clearAllBtn" data-tooltip="پاک کردن همه" title="پاک کردن همه">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas -->
+                <canvas id="main-canvas"></canvas>
+            </main>
+
+            <!-- Right Panel -->
+            <aside class="right-panel" id="rightPanel">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="text-tab">ویرایش متن</button>
+                    <button class="tab-btn" data-tab="image-tab">ویرایش تصویر</button>
+                </div>
+
+                <!-- Text Tab -->
+                <div id="text-tab" class="tab-content active">
+                    <!-- Text Input -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-font"></i>
+                            متن خود را وارد کنید
+                        </div>
+                        
+                        <div class="form-group">
+                            <textarea class="form-input" id="textInput" rows="3" placeholder="متن خود را اینجا تایپ کنید..."></textarea>
+                        </div>
+                        
+                        <button class="btn btn-primary w-100" id="addTextBtn">
+                            <i class="fas fa-plus-circle"></i>
+                            اضافه کردن متن به لباس
+                        </button>
+                    </div>
+
+                    <!-- Font Selection -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-font"></i>
+                            انتخاب فونت
+                        </div>
+                        
+                        <div class="font-grid">
+                            <div class="font-item active" data-font="Vazirmatn" style="font-family: 'Vazirmatn';">
+                                فارسی
+                            </div>
+                            <div class="font-item" data-font="Arial" style="font-family: 'Arial';">
+                                Arial
+                            </div>
+                            <div class="font-item" data-font="'Times New Roman'" style="font-family: 'Times New Roman';">
+                                Times
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Font Size -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-text-height"></i>
+                            اندازه فونت
+                        </div>
+                        
+                        <div class="size-controls">
+                            <button class="size-btn" data-size="24">کوچک</button>
+                            <button class="size-btn active" data-size="36">متوسط</button>
+                            <button class="size-btn" data-size="48">بزرگ</button>
+                            <button class="size-btn" data-size="64">بسیار بزرگ</button>
+                        </div>
+                    </div>
+
+                    <!-- Color Selection -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-palette"></i>
+                            رنگ متن
+                        </div>
+                        
+                        <div class="color-grid">
+                            <div class="color-item active" style="background: #000000;" data-color="#000000"></div>
+                            <div class="color-item" style="background: #ffffff; border: 1px solid #e5e7eb;" data-color="#ffffff"></div>
+                            <div class="color-item" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                            <div class="color-item" style="background: #ef4444;" data-color="#ef4444"></div>
+                            <div class="color-item" style="background: #10b981;" data-color="#10b981"></div>
+                            <div class="color-item" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                        </div>
+                    </div>
+
+                    <!-- Text Effects -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-magic"></i>
+                            افکت‌های متن
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-outline-primary btn-sm" id="shadowBtn">
+                                سایه
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" id="outlineBtn">
+                                حاشیه
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" id="glowBtn">
+                                درخشش
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" id="resetEffectsBtn">
+                                بازنشانی
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Position Presets -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            موقعیت متن
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <button class="btn btn-outline-secondary" data-position="center">
+                                مرکز
+                            </button>
+                            <button class="btn btn-outline-secondary" data-position="top">
+                                بالا
+                            </button>
+                            <button class="btn btn-outline-secondary" data-position="bottom">
+                                پایین
+                            </button>
+                            <button class="btn btn-outline-secondary" data-position="left">
+                                چپ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Tab -->
+                <div id="image-tab" class="tab-content">
+                    <!-- Selected Object Controls -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-sliders-h"></i>
+                            تنظیمات شیء انتخاب شده
+                        </div>
+                        
+                        <div id="selectedObjectInfo" style="padding: 15px; background: #f8fafc; border-radius: 8px; margin-bottom: 20px; text-align: center; color: #6b7280;">
+                            هیچ شیئی انتخاب نشده
+                        </div>
+
+                        <!-- Size Controls -->
+                        <div class="form-group">
+                            <div class="slider-group">
+                                <div class="slider-label">
+                                    <span>اندازه:</span>
+                                    <span id="sizeValue">100%</span>
+                                </div>
+                                <input type="range" class="slider" id="sizeSlider" min="10" max="300" value="100">
+                            </div>
+                            
+                            <div class="size-presets">
+                                <div class="size-preset" data-size="50">کوچک</div>
+                                <div class="size-preset active" data-size="100">متوسط</div>
+                                <div class="size-preset" data-size="200">بزرگ</div>
+                            </div>
+                        </div>
+
+                        <!-- Rotation -->
+                        <div class="form-group">
+                            <div class="slider-group">
+                                <div class="slider-label">
+                                    <span>چرخش:</span>
+                                    <span id="rotationValue">0°</span>
+                                </div>
+                                <input type="range" class="slider" id="rotationSlider" min="0" max="360" value="0">
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button class="btn btn-outline-secondary flex-1" id="rotateLeftBtn">
+                                    <i class="fas fa-undo"></i>
+                                    90° چپ
+                                </button>
+                                <button class="btn btn-outline-secondary flex-1" id="rotateRightBtn">
+                                    <i class="fas fa-redo"></i>
+                                    90° راست
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Opacity -->
+                        <div class="form-group">
+                            <div class="slider-group">
+                                <div class="slider-label">
+                                    <span>شفافیت:</span>
+                                    <span id="opacityValue">100%</span>
+                                </div>
+                                <input type="range" class="slider" id="opacitySlider" min="0" max="100" value="100">
+                            </div>
+                        </div>
+
+                        <!-- Position Controls -->
+                        <div class="form-group">
+                            <div class="section-title" style="font-size: 14px; margin-bottom: 15px;">
+                                <i class="fas fa-arrows-alt"></i>
+                                موقعیت دقیق
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                <div>
+                                    <label class="form-label">X:</label>
+                                    <input type="number" class="form-input" id="positionX" placeholder="0">
+                                </div>
+                                <div>
+                                    <label class="form-label">Y:</label>
+                                    <input type="number" class="form-input" id="positionY" placeholder="0">
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn btn-outline-secondary flex-1" id="centerBtn">
+                                    <i class="fas fa-crosshairs"></i>
+                                    مرکز
+                                </button>
+                                <button class="btn btn-outline-secondary flex-1" id="resetPositionBtn">
+                                    <i class="fas fa-sync"></i>
+                                    بازنشانی
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Effects -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-magic"></i>
+                            افکت‌های تصویر
+                        </div>
+                        
+                        <div class="image-controls">
+                            <button class="image-btn" data-effect="grayscale">
+                                <i class="fas fa-adjust"></i>
+                                خاکستری
+                            </button>
+                            <button class="image-btn" data-effect="brightness">
+                                <i class="fas fa-sun"></i>
+                                روشنایی
+                            </button>
+                            <button class="image-btn" data-effect="contrast">
+                                <i class="fas fa-circle"></i>
+                                کنتراست
+                            </button>
+                            <button class="image-btn" data-effect="sepia">
+                                <i class="fas fa-image"></i>
+                                سپیا
+                            </button>
+                            <button class="image-btn" data-effect="invert">
+                                <i class="fas fa-exchange-alt"></i>
+                                معکوس
+                            </button>
+                            <button class="image-btn" data-effect="reset">
+                                <i class="fas fa-undo"></i>
+                                بازنشانی
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Image Borders -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-square"></i>
+                            حاشیه و سایه
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-outline-primary btn-sm" id="addBorderBtn">
+                                <i class="fas fa-square"></i>
+                                حاشیه
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" id="addShadowBtn">
+                                <i class="fas fa-cloud"></i>
+                                سایه
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" id="addGlowBtn">
+                                <i class="fas fa-sun"></i>
+                                درخشش
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" id="removeEffectsBtn">
+                                <i class="fas fa-times"></i>
+                                حذف
+                            </button>
+                        </div>
+                        
+                        <div class="slider-group" style="margin-top: 20px;">
+                            <div class="slider-label">
+                                <span>ضخامت حاشیه:</span>
+                                <span id="borderWidthValue">0px</span>
+                            </div>
+                            <input type="range" class="slider" id="borderWidthSlider" min="0" max="20" value="0">
+                        </div>
+                    </div>
+
+                    <!-- Flip Controls -->
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-arrows-alt-h"></i>
+                            چرخش و برگرداندن
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <button class="btn btn-outline-secondary" id="flipHorizontalBtn">
+                                <i class="fas fa-arrows-alt-h"></i>
+                                برگرداندن افقی
+                            </button>
+                            <button class="btn btn-outline-secondary" id="flipVerticalBtn">
+                                <i class="fas fa-arrows-alt-v"></i>
+                                برگرداندن عمودی
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // سیستم جامع طراحی لباس سفارشی
+        
+        class ClothingDesignSystem {
+            constructor() {
+                this.canvas = null;
+                this.clothingImage = null;
+                this.selectedObject = null;
+                this.objects = [];
+                this.currentFont = 'Vazirmatn';
+                this.currentColor = '#000000';
+                this.currentSize = 36;
+                this.zoomLevel = 1;
+                this.currentTool = 'select';
+                
+                this.init();
+            }
+
+            init() {
+                this.initializeCanvas();
+                this.loadDefaultClothing();
+                this.setupEventListeners();
+                this.setupDragAndDrop();
+                this.setupTabs();
+                
+                console.log('🎨 سیستم جامع طراحی لباس راه‌اندازی شد');
+            }
+
+            initializeCanvas() {
+                this.canvas = new fabric.Canvas('main-canvas', {
+                    backgroundColor: 'transparent',
+                    selection: true,
+                    selectionColor: 'rgba(59, 130, 246, 0.3)',
+                    selectionBorderColor: '#3b82f6',
+                    preserveObjectStacking: true,
+                    perPixelTargetFind: true
+                });
+
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+
+                // رویدادهای Canvas
+                this.canvas.on('selection:created', (e) => {
+                    this.selectedObject = e.selected[0];
+                    this.updateObjectControls();
+                    this.updateObjectList();
+                    this.updateTextControls();
+                });
+
+                this.canvas.on('selection:updated', (e) => {
+                    this.selectedObject = e.selected[0];
+                    this.updateObjectControls();
+                    this.updateTextControls();
+                });
+
+                this.canvas.on('selection:cleared', () => {
+                    this.selectedObject = null;
+                    this.updateObjectControls();
+                });
+
+                this.canvas.on('object:modified', () => {
+                    this.updateObjectControls();
+                    this.updateObjectList();
+                });
+
+                this.canvas.on('object:moving', () => {
+                    this.updatePositionInputs();
+                });
+
+                this.canvas.on('object:scaling', () => {
+                    this.updateSizeSlider();
+                });
+
+                this.canvas.on('object:rotating', () => {
+                    this.updateRotationSlider();
+                });
+            }
+
+            resizeCanvas() {
+                const container = document.querySelector('.canvas-area');
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                
+                this.canvas.setWidth(width);
+                this.canvas.setHeight(height);
+                this.canvas.calcOffset();
+                
+                if (this.clothingImage) {
+                    this.fitClothingToCanvas();
+                }
+                
+                this.canvas.renderAll();
+            }
+
+            loadDefaultClothing() {
+                this.loadClothingImage('https://cdn.modiseh.com/unsafe/medium/ch6776/ch6776_1_.jpg');
+            }
+
+            loadClothingImage(imageUrl) {
+                document.getElementById('loading').style.display = 'block';
+                
+                // حذف لباس قبلی
+                if (this.clothingImage) {
+                    this.canvas.remove(this.clothingImage);
+                }
+                
+                fabric.Image.fromURL(imageUrl, (img) => {
+                    this.clothingImage = img;
+                    this.fitClothingToCanvas();
+                    
+                    img.set({
+                        selectable: false,
+                        evented: false,
+                        hasControls: false,
+                        hasBorders: false,
+                        lockMovementX: true,
+                        lockMovementY: true,
+                        lockRotation: true,
+                        lockScalingX: true,
+                        lockScalingY: true
+                    });
+                    
+                    this.canvas.add(img);
+                    this.canvas.sendToBack(img);
+                    this.canvas.renderAll();
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    iziToast.success({
+                        title: 'موفقیت',
+                        message: 'لباس بارگذاری شد',
+                        position: 'topLeft'
+                    });
+                }, {
+                    crossOrigin: 'anonymous'
+                });
+            }
+
+            fitClothingToCanvas() {
+                if (!this.clothingImage) return;
+                
+                const canvasWidth = this.canvas.width;
+                const canvasHeight = this.canvas.height;
+                
+                const scaleX = canvasWidth / this.clothingImage.width;
+                const scaleY = canvasHeight / this.clothingImage.height;
+                const scale = Math.min(scaleX, scaleY) * 0.85;
+                
+                this.clothingImage.scale(scale);
+                this.clothingImage.set({
+                    left: (canvasWidth - (this.clothingImage.width * scale)) / 2,
+                    top: (canvasHeight - (this.clothingImage.height * scale)) / 2,
+                    originX: 'left',
+                    originY: 'top'
+                });
+            }
+
+            setupEventListeners() {
+                // قالب‌های لباس
+                document.querySelectorAll('[data-template]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const template = e.currentTarget.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+
+                // آپلود لباس
+                document.getElementById('uploadClothingBtn').addEventListener('click', () => {
+                    document.getElementById('clothingUpload').click();
+                });
+
+                document.getElementById('clothingUpload').addEventListener('change', (e) => {
+                    if (e.target.files[0]) {
+                        this.handleClothingUpload(e.target.files[0]);
+                    }
+                });
+
+                // آپلود تصویر
+                document.getElementById('imageUploadArea').addEventListener('click', () => {
+                    document.getElementById('imageUpload').click();
+                });
+
+                document.getElementById('imageUpload').addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        Array.from(e.target.files).forEach(file => {
+                            this.handleImageUpload(file);
+                        });
+                    }
+                });
+
+                // تصویر نمونه
+                document.getElementById('addSampleImageBtn').addEventListener('click', () => {
+                    this.addSampleImage();
+                });
+
+                // افزودن متن
+                document.getElementById('addTextBtn').addEventListener('click', () => {
+                    this.addTextToClothing();
+                });
+
+                // انتخاب فونت
+                document.querySelectorAll('.font-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        document.querySelectorAll('.font-item').forEach(i => i.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentFont = e.currentTarget.dataset.font;
+                        this.applyFontToSelected();
+                    });
+                });
+
+                // انتخاب اندازه متن
+                document.querySelectorAll('.size-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentSize = parseInt(e.currentTarget.dataset.size);
+                        this.applySizeToSelected();
+                    });
+                });
+
+                // انتخاب رنگ متن
+                document.querySelectorAll('.color-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        document.querySelectorAll('.color-item').forEach(i => i.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentColor = e.currentTarget.dataset.color;
+                        this.applyColorToSelected();
+                    });
+                });
+
+                // افکت‌های متن
+                document.getElementById('shadowBtn').addEventListener('click', () => {
+                    this.applyShadowEffect();
+                });
+
+                document.getElementById('outlineBtn').addEventListener('click', () => {
+                    this.applyOutlineEffect();
+                });
+
+                document.getElementById('glowBtn').addEventListener('click', () => {
+                    this.applyGlowEffect();
+                });
+
+                document.getElementById('resetEffectsBtn').addEventListener('click', () => {
+                    this.resetTextEffects();
+                });
+
+                // موقعیت متن
+                document.querySelectorAll('[data-position]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const position = e.currentTarget.dataset.position;
+                        this.applyTextPosition(position);
+                    });
+                });
+
+                // ابزارهای Canvas
+                document.getElementById('selectBtn').addEventListener('click', () => {
+                    this.setTool('select');
+                });
+
+                document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
+                document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
+                document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
+                document.getElementById('clearAllBtn').addEventListener('click', () => this.clearAllObjects());
+                document.getElementById('togglePanelBtn').addEventListener('click', () => this.togglePanel());
+
+                // مدیریت اشیاء
+                document.getElementById('deleteSelectedBtn').addEventListener('click', () => this.deleteSelected());
+                document.getElementById('duplicateBtn').addEventListener('click', () => this.duplicateSelected());
+                document.getElementById('bringToFrontBtn').addEventListener('click', () => this.bringToFront());
+
+                // کنترل‌های اندازه تصویر
+                document.getElementById('sizeSlider').addEventListener('input', (e) => {
+                    this.resizeSelected(e.target.value);
+                });
+
+                document.querySelectorAll('.size-preset').forEach(preset => {
+                    preset.addEventListener('click', (e) => {
+                        document.querySelectorAll('.size-preset').forEach(p => p.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        const size = parseInt(e.currentTarget.dataset.size);
+                        this.resizeSelected(size);
+                    });
+                });
+
+                // کنترل‌های چرخش
+                document.getElementById('rotationSlider').addEventListener('input', (e) => {
+                    this.rotateSelected(e.target.value);
+                });
+
+                document.getElementById('rotateLeftBtn').addEventListener('click', () => {
+                    this.rotateSelected(-90);
+                });
+
+                document.getElementById('rotateRightBtn').addEventListener('click', () => {
+                    this.rotateSelected(90);
+                });
+
+                // کنترل شفافیت
+                document.getElementById('opacitySlider').addEventListener('input', (e) => {
+                    this.setOpacity(e.target.value);
+                });
+
+                // کنترل موقعیت
+                document.getElementById('positionX').addEventListener('change', (e) => {
+                    this.setPosition('x', parseInt(e.target.value));
+                });
+
+                document.getElementById('positionY').addEventListener('change', (e) => {
+                    this.setPosition('y', parseInt(e.target.value));
+                });
+
+                document.getElementById('centerBtn').addEventListener('click', () => {
+                    this.centerSelected();
+                });
+
+                document.getElementById('resetPositionBtn').addEventListener('click', () => {
+                    this.resetPosition();
+                });
+
+                // افکت‌های تصویر
+                document.querySelectorAll('[data-effect]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const effect = e.currentTarget.dataset.effect;
+                        this.applyImageEffect(effect);
+                    });
+                });
+
+                // حاشیه و سایه تصویر
+                document.getElementById('addBorderBtn').addEventListener('click', () => this.addBorder());
+                document.getElementById('addShadowBtn').addEventListener('click', () => this.addShadow());
+                document.getElementById('addGlowBtn').addEventListener('click', () => this.addGlow());
+                document.getElementById('removeEffectsBtn').addEventListener('click', () => this.removeImageEffects());
+
+                document.getElementById('borderWidthSlider').addEventListener('input', (e) => {
+                    this.setBorderWidth(e.target.value);
+                });
+
+                // چرخش و برگرداندن
+                document.getElementById('flipHorizontalBtn').addEventListener('click', () => this.flipHorizontal());
+                document.getElementById('flipVerticalBtn').addEventListener('click', () => this.flipVertical());
+
+                // ذخیره
+                document.getElementById('saveBtn').addEventListener('click', () => this.saveDesign());
+
+                // Enter برای افزودن متن
+                document.getElementById('textInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                        this.addTextToClothing();
+                    }
+                });
+            }
+
+            setupDragAndDrop() {
+                const uploadArea = document.getElementById('imageUploadArea');
+                
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.style.background = 'rgba(59, 130, 246, 0.1)';
+                    uploadArea.style.borderColor = '#8b5cf6';
+                });
+
+                uploadArea.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    uploadArea.style.background = '';
+                    uploadArea.style.borderColor = '';
+                });
+
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.style.background = '';
+                    uploadArea.style.borderColor = '';
+                    
+                    const files = e.dataTransfer.files;
+                    Array.from(files).forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            this.handleImageUpload(file);
+                        }
+                    });
+                });
+            }
+
+            setupTabs() {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const tabId = e.currentTarget.dataset.tab;
+                        
+                        // غیرفعال کردن همه تب‌ها
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        
+                        // فعال کردن تب انتخاب شده
+                        e.currentTarget.classList.add('active');
+                        document.getElementById(tabId).classList.add('active');
+                    });
+                });
+            }
+
+            loadTemplate(template) {
+                let imageUrl = '';
+                
+                switch(template) {
+                    case 'tshirt-white':
+                        imageUrl = 'https://cdn.modiseh.com/unsafe/medium/ch6783/ch6783_1_.jpg';
+                        break;
+                    case 'tshirt-black':
+                        imageUrl = 'https://cdn.modiseh.com/unsafe/medium/ch6774/ch6774_1_.jpg';
+                        break;
+                    case 'hoodie-gray':
+                        imageUrl = 'https://cdn.modiseh.com/unsafe/medium/ch6776/ch6776_1_.jpg';
+                        break;
+                    case 'polo-blue':
+                        imageUrl = 'https://cdn.modiseh.com/unsafe/medium/ch6775/ch6775_1_.jpg';
+                        break;
+                    default:
+                        imageUrl = 'https://cdn.modiseh.com/unsafe/medium/ch6783/ch6783_1_.jpg';
+                }
+                
+                this.loadClothingImage(imageUrl);
+            }
+
+            handleClothingUpload(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.loadClothingImage(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+
+            handleImageUpload(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    fabric.Image.fromURL(e.target.result, (img) => {
+                        // تنظیم سایز اولیه
+                        const maxSize = Math.min(this.canvas.width, this.canvas.height) * 0.3;
+                        if (img.width > maxSize || img.height > maxSize) {
+                            const scale = maxSize / Math.max(img.width, img.height);
+                            img.scale(scale);
+                        }
+                        
+                        // قراردادن در مرکز Canvas
+                        img.set({
+                            left: this.canvas.width / 2,
+                            top: this.canvas.height / 2,
+                            originX: 'center',
+                            originY: 'center',
+                            selectable: true,
+                            hasControls: true,
+                            hasBorders: true,
+                            lockUniScaling: false,
+                            cornerSize: 10,
+                            transparentCorners: false
+                        });
+                        
+                        this.canvas.add(img);
+                        this.canvas.setActiveObject(img);
+                        this.selectedObject = img;
+                        
+                        // اضافه کردن به لیست اشیاء
+                        this.addToObjectList(img, file.name.substring(0, 20) + '...');
+                        
+                        this.canvas.renderAll();
+                        this.updateObjectControls();
+                        
+                        iziToast.success({
+                            title: 'موفقیت',
+                            message: 'تصویر با موفقیت آپلود شد',
+                            position: 'topLeft'
+                        });
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+
+            addSampleImage() {
+                // اضافه کردن تصویر نمونه
+                const sampleImages = [
+                    'https://cdn.modiseh.com/unsafe/medium/ch6776/ch6776_1_.jpg', // لوگو کوچک
+                    'https://i.imgur.com/HUHQ3K1.png',  // آیکون
+                    'https://i.imgur.com/3QJp1jF.png'   // متن گرافیکی
+                ];
+                
+                const randomImage = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+                
+                fabric.Image.fromURL(randomImage, (img) => {
+                    const maxSize = Math.min(this.canvas.width, this.canvas.height) * 0.25;
+                    if (img.width > maxSize || img.height > maxSize) {
+                        const scale = maxSize / Math.max(img.width, img.height);
+                        img.scale(scale);
+                    }
+                    
+                    img.set({
+                        left: this.canvas.width / 2,
+                        top: this.canvas.height / 2,
+                        originX: 'center',
+                        originY: 'center',
+                        selectable: true,
+                        hasControls: true,
+                        hasBorders: true
+                    });
+                    
+                    this.canvas.add(img);
+                    this.canvas.setActiveObject(img);
+                    this.selectedObject = img;
+                    
+                    this.addToObjectList(img, 'تصویر نمونه');
+                    this.canvas.renderAll();
+                    this.updateObjectControls();
+                    
+                    iziToast.info({
+                        title: 'اضافه شد',
+                        message: 'تصویر نمونه اضافه شد',
+                        position: 'topLeft'
+                    });
+                });
+            }
+
+            addTextToClothing() {
+                const text = document.getElementById('textInput').value.trim();
+                
+                if (!text) {
+                    iziToast.warning({
+                        title: 'هشدار',
+                        message: 'لطفا متن خود را وارد کنید',
+                        position: 'topLeft'
+                    });
+                    return;
+                }
+                
+                const textObj = new fabric.Text(text, {
+                    left: this.canvas.width / 2,
+                    top: this.canvas.height / 2,
+                    fontSize: this.currentSize,
+                    fill: this.currentColor,
+                    fontFamily: this.currentFont,
+                    textAlign: 'center',
+                    originX: 'center',
+                    originY: 'center',
+                    padding: 10,
+                    selectable: true,
+                    hasControls: true,
+                    hasBorders: true,
+                    lockUniScaling: true
+                });
+                
+                this.canvas.add(textObj);
+                this.canvas.setActiveObject(textObj);
+                this.selectedObject = textObj;
+                
+                // اضافه کردن به لیست اشیاء
+                this.addToObjectList(textObj, text.length > 15 ? text.substring(0, 15) + '...' : text);
+                
+                this.canvas.renderAll();
+                this.updateObjectControls();
+                this.updateTextControls();
+                
+                iziToast.success({
+                    title: 'موفقیت',
+                    message: 'متن به لباس اضافه شد',
+                    position: 'topLeft'
+                });
+            }
+
+            updateTextControls() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    // آپدیت مقادیر کنترلی متن
+                    document.querySelectorAll('.font-item').forEach(item => {
+                        item.classList.toggle('active', item.dataset.font === this.selectedObject.fontFamily);
+                    });
+                    
+                    document.querySelectorAll('.size-btn').forEach(btn => {
+                        btn.classList.toggle('active', parseInt(btn.dataset.size) === this.selectedObject.fontSize);
+                    });
+                    
+                    document.querySelectorAll('.color-item').forEach(item => {
+                        item.classList.toggle('active', item.dataset.color === this.selectedObject.fill);
+                    });
+                    
+                    document.getElementById('textInput').value = this.selectedObject.text;
+                }
+            }
+
+            applyFontToSelected() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    this.selectedObject.set('fontFamily', this.currentFont);
+                    this.canvas.renderAll();
+                    this.updateObjectList();
+                }
+            }
+
+            applySizeToSelected() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    this.selectedObject.set('fontSize', this.currentSize);
+                    this.canvas.renderAll();
+                    this.updateObjectList();
+                }
+            }
+
+            applyColorToSelected() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    this.selectedObject.set('fill', this.currentColor);
+                    this.canvas.renderAll();
+                    this.updateObjectList();
+                }
+            }
+
+            applyShadowEffect() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    this.selectedObject.set('shadow', 'rgba(0,0,0,0.5) 2px 2px 5px');
+                    this.canvas.renderAll();
+                    
+                    iziToast.info({
+                        title: 'اعمال شد',
+                        message: 'افکت سایه اضافه شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            applyOutlineEffect() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    this.selectedObject.set('stroke', '#000000');
+                    this.selectedObject.set('strokeWidth', 1);
+                    this.canvas.renderAll();
+                    
+                    iziToast.info({
+                        title: 'اعمال شد',
+                        message: 'حاشیه به متن اضافه شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            applyGlowEffect() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    this.selectedObject.set('shadow', '0 0 10px rgba(59, 130, 246, 0.8)');
+                    this.canvas.renderAll();
+                    
+                    iziToast.info({
+                        title: 'اعمال شد',
+                        message: 'افکت درخشش اعمال شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            resetTextEffects() {
+                if (this.selectedObject && this.selectedObject.type === 'text') {
+                    this.selectedObject.set('shadow', null);
+                    this.selectedObject.set('stroke', null);
+                    this.selectedObject.set('strokeWidth', 0);
+                    this.canvas.renderAll();
+                    
+                    iziToast.info({
+                        title: 'بازنشانی',
+                        message: 'تمام افکت‌ها حذف شدند',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            applyTextPosition(position) {
+                if (!this.selectedObject) {
+                    iziToast.warning({
+                        title: 'هشدار',
+                        message: 'لطفا ابتدا یک متن را انتخاب کنید',
+                        position: 'topLeft'
+                    });
+                    return;
+                }
+                
+                const canvasWidth = this.canvas.width;
+                const canvasHeight = this.canvas.height;
+                
+                switch(position) {
+                    case 'center':
+                        this.selectedObject.set({
+                            left: canvasWidth / 2,
+                            top: canvasHeight / 2
+                        });
+                        break;
+                    
+                    case 'top':
+                        this.selectedObject.set({
+                            left: canvasWidth / 2,
+                            top: canvasHeight * 0.3
+                        });
+                        break;
+                    
+                    case 'bottom':
+                        this.selectedObject.set({
+                            left: canvasWidth / 2,
+                            top: canvasHeight * 0.7
+                        });
+                        break;
+                    
+                    case 'left':
+                        this.selectedObject.set({
+                            left: canvasWidth * 0.3,
+                            top: canvasHeight / 2
+                        });
+                        break;
+                }
+                
+                this.selectedObject.set({
+                    originX: 'center',
+                    originY: 'center'
+                });
+                
+                this.canvas.renderAll();
+                
+                iziToast.info({
+                    title: 'جابجایی',
+                    message: `متن به موقعیت جدید منتقل شد`,
+                    position: 'topLeft'
+                });
+            }
+
+            setTool(tool) {
+                this.currentTool = tool;
+                
+                if (tool === 'select') {
+                    this.canvas.selection = true;
+                    this.canvas.defaultCursor = 'default';
+                }
+            }
+
+            zoomIn() {
+                this.zoomLevel *= 1.2;
+                this.canvas.setZoom(this.zoomLevel);
+            }
+
+            zoomOut() {
+                this.zoomLevel /= 1.2;
+                if (this.zoomLevel < 0.1) this.zoomLevel = 0.1;
+                this.canvas.setZoom(this.zoomLevel);
+            }
+
+            resetView() {
+                this.zoomLevel = 1;
+                this.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+                this.canvas.setZoom(1);
+            }
+
+            clearAllObjects() {
+                if (confirm('آیا از حذف تمام تصاویر و متن‌ها اطمینان دارید؟')) {
+                    const objects = this.canvas.getObjects().filter(obj => obj !== this.clothingImage);
+                    objects.forEach(obj => {
+                        this.canvas.remove(obj);
+                    });
+                    
+                    this.objects = [];
+                    this.updateObjectList();
+                    this.updateObjectControls();
+                    this.canvas.renderAll();
+                    
+                    iziToast.success({
+                        title: 'پاک شد',
+                        message: 'تمام تصاویر و متن‌ها حذف شدند',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            togglePanel() {
+                const panel = document.getElementById('rightPanel');
+                panel.classList.toggle('active');
+            }
+
+            addToObjectList(obj, name) {
+                const objectId = Date.now();
+                
+                this.objects.push({
+                    id: objectId,
+                    name: name,
+                    type: obj.type,
+                    object: obj
+                });
+                
+                this.updateObjectList();
+            }
+
+            updateObjectList() {
+                const list = document.getElementById('objectList');
+                list.innerHTML = '';
+                
+                this.objects.forEach((item, index) => {
+                    const isActive = this.selectedObject === item.object;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = `object-item ${isActive ? 'active' : ''}`;
+                    itemElement.dataset.index = index;
+                    
+                    let icon = 'fas fa-image';
+                    let bgColor = '#3b82f6';
+                    
+                    if (item.type === 'text') {
+                        icon = 'fas fa-font';
+                        bgColor = '#10b981';
+                    }
+                    
+                    itemElement.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="object-preview" style="background: ${bgColor}; color: white;">
+                                <i class="${icon}"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">${item.name}</div>
+                                <div style="font-size: 12px; color: #6b7280;">
+                                    ${item.type === 'image' ? 'تصویر' : 'متن'}
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="delete-object" data-index="${index}" style="background: none; border: none; color: #ef4444; cursor: pointer;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    itemElement.addEventListener('click', (e) => {
+                        if (!e.target.closest('.delete-object')) {
+                            this.canvas.setActiveObject(item.object);
+                            this.selectedObject = item.object;
+                            this.canvas.renderAll();
+                            this.updateObjectControls();
+                            this.updateObjectList();
+                            this.updateTextControls();
+                        }
+                    });
+                    
+                    const deleteBtn = itemElement.querySelector('.delete-object');
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.deleteObject(index);
+                    });
+                    
+                    list.appendChild(itemElement);
+                });
+            }
+
+            deleteObject(index) {
+                if (this.objects[index]) {
+                    const obj = this.objects[index].object;
+                    this.canvas.remove(obj);
+                    this.objects.splice(index, 1);
+                    this.canvas.renderAll();
+                    this.updateObjectList();
+                    this.updateObjectControls();
+                    
+                    iziToast.success({
+                        title: 'حذف شد',
+                        message: 'شیء حذف شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            updateObjectControls() {
+                const infoDiv = document.getElementById('selectedObjectInfo');
+                
+                if (this.selectedObject && this.selectedObject !== this.clothingImage) {
+                    // آپدیت اطلاعات
+                    infoDiv.innerHTML = `
+                        <div style="font-weight: 600; color: #1f2937; margin-bottom: 5px;">
+                            ${this.selectedObject.type === 'image' ? 'تصویر' : 'متن'}
+                        </div>
+                        <div style="font-size: 13px;">
+                            اندازه: ${Math.round((this.selectedObject.scaleX || 1) * 100)}%
+                        </div>
+                    `;
+                    
+                    // فعال کردن کنترل‌ها
+                    document.getElementById('sizeSlider').disabled = false;
+                    document.getElementById('rotationSlider').disabled = false;
+                    document.getElementById('opacitySlider').disabled = false;
+                    document.getElementById('positionX').disabled = false;
+                    document.getElementById('positionY').disabled = false;
+                    document.getElementById('borderWidthSlider').disabled = false;
+                    
+                    // آپدیت مقادیر
+                    this.updateSizeSlider();
+                    this.updateRotationSlider();
+                    this.updateOpacitySlider();
+                    this.updatePositionInputs();
+                    this.updateBorderSlider();
+                } else {
+                    // غیرفعال کردن کنترل‌ها
+                    infoDiv.innerHTML = 'هیچ شیئی انتخاب نشده';
+                    document.getElementById('sizeSlider').disabled = true;
+                    document.getElementById('rotationSlider').disabled = true;
+                    document.getElementById('opacitySlider').disabled = true;
+                    document.getElementById('positionX').disabled = true;
+                    document.getElementById('positionY').disabled = true;
+                    document.getElementById('borderWidthSlider').disabled = true;
+                }
+            }
+
+            updateSizeSlider() {
+                if (this.selectedObject) {
+                    const scale = Math.round((this.selectedObject.scaleX || 1) * 100);
+                    document.getElementById('sizeSlider').value = scale;
+                    document.getElementById('sizeValue').textContent = `${scale}%`;
+                }
+            }
+
+            updateRotationSlider() {
+                if (this.selectedObject) {
+                    const rotation = Math.round(this.selectedObject.angle || 0);
+                    document.getElementById('rotationSlider').value = rotation;
+                    document.getElementById('rotationValue').textContent = `${rotation}°`;
+                }
+            }
+
+            updateOpacitySlider() {
+                if (this.selectedObject) {
+                    const opacity = Math.round((this.selectedObject.opacity || 1) * 100);
+                    document.getElementById('opacitySlider').value = opacity;
+                    document.getElementById('opacityValue').textContent = `${opacity}%`;
+                }
+            }
+
+            updatePositionInputs() {
+                if (this.selectedObject) {
+                    const left = Math.round(this.selectedObject.left || 0);
+                    const top = Math.round(this.selectedObject.top || 0);
+                    document.getElementById('positionX').value = left;
+                    document.getElementById('positionY').value = top;
+                }
+            }
+
+            updateBorderSlider() {
+                if (this.selectedObject) {
+                    const borderWidth = this.selectedObject.strokeWidth || 0;
+                    document.getElementById('borderWidthSlider').value = borderWidth;
+                    document.getElementById('borderWidthValue').textContent = `${borderWidth}px`;
+                }
+            }
+
+            deleteSelected() {
+                if (this.selectedObject && this.selectedObject !== this.clothingImage) {
+                    this.canvas.remove(this.selectedObject);
+                    this.selectedObject = null;
+                    
+                    // حذف از لیست objects
+                    const index = this.objects.findIndex(item => item.object === this.selectedObject);
+                    if (index > -1) {
+                        this.objects.splice(index, 1);
+                    }
+                    
+                    this.canvas.renderAll();
+                    this.updateObjectList();
+                    this.updateObjectControls();
+                    
+                    iziToast.success({
+                        title: 'حذف شد',
+                        message: 'شیء انتخاب شده حذف شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            duplicateSelected() {
+                if (this.selectedObject && this.selectedObject !== this.clothingImage) {
+                    const duplicated = fabric.util.object.clone(this.selectedObject);
+                    duplicated.set({
+                        left: (this.selectedObject.left || 0) + 20,
+                        top: (this.selectedObject.top || 0) + 20
+                    });
+                    
+                    this.canvas.add(duplicated);
+                    this.canvas.setActiveObject(duplicated);
+                    this.selectedObject = duplicated;
+                    
+                    this.addToObjectList(duplicated, 'کپی شده');
+                    this.canvas.renderAll();
+                    
+                    iziToast.success({
+                        title: 'کپی شد',
+                        message: 'شیء با موفقیت کپی شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            bringToFront() {
+                if (this.selectedObject) {
+                    this.canvas.bringToFront(this.selectedObject);
+                    this.canvas.renderAll();
+                    
+                    iziToast.info({
+                        title: 'جلو آورده شد',
+                        message: 'شیء به جلو آورده شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            resizeSelected(sizePercent) {
+                if (this.selectedObject) {
+                    const scale = sizePercent / 100;
+                    this.selectedObject.scale(scale);
+                    this.canvas.renderAll();
+                    this.updateSizeSlider();
+                }
+            }
+
+            rotateSelected(degrees) {
+                if (this.selectedObject) {
+                    if (typeof degrees === 'string') {
+                        this.selectedObject.set('angle', parseInt(degrees));
+                    } else {
+                        const currentAngle = this.selectedObject.angle || 0;
+                        this.selectedObject.set('angle', currentAngle + degrees);
+                    }
+                    this.canvas.renderAll();
+                    this.updateRotationSlider();
+                }
+            }
+
+            setOpacity(value) {
+                if (this.selectedObject) {
+                    this.selectedObject.set('opacity', value / 100);
+                    this.canvas.renderAll();
+                }
+            }
+
+            setPosition(axis, value) {
+                if (this.selectedObject) {
+                    if (axis === 'x') {
+                        this.selectedObject.set('left', parseInt(value));
+                    } else if (axis === 'y') {
+                        this.selectedObject.set('top', parseInt(value));
+                    }
+                    this.canvas.renderAll();
+                    this.updatePositionInputs();
+                }
+            }
+
+            centerSelected() {
+                if (this.selectedObject) {
+                    this.selectedObject.set({
+                        left: this.canvas.width / 2,
+                        top: this.canvas.height / 2,
+                        originX: 'center',
+                        originY: 'center'
+                    });
+                    this.canvas.renderAll();
+                    this.updatePositionInputs();
+                    
+                    iziToast.info({
+                        title: 'مرکز شد',
+                        message: 'شیء به مرکز منتقل شد',
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            resetPosition() {
+                if (this.selectedObject) {
+                    this.selectedObject.set({
+                        left: 100,
+                        top: 100
+                    });
+                    this.canvas.renderAll();
+                    this.updatePositionInputs();
+                }
+            }
+
+            applyImageEffect(effect) {
+                if (!this.selectedObject || this.selectedObject.type !== 'image') return;
+                
+                const filters = this.selectedObject.filters || [];
+                
+                switch(effect) {
+                    case 'grayscale':
+                        filters.push(new fabric.Image.filters.Grayscale());
+                        break;
+                    case 'brightness':
+                        filters.push(new fabric.Image.filters.Brightness({ brightness: 0.2 }));
+                        break;
+                    case 'contrast':
+                        filters.push(new fabric.Image.filters.Contrast({ contrast: 0.2 }));
+                        break;
+                    case 'sepia':
+                        filters.push(new fabric.Image.filters.Sepia());
+                        break;
+                    case 'invert':
+                        filters.push(new fabric.Image.filters.Invert());
+                        break;
+                    case 'reset':
+                        this.selectedObject.filters = [];
+                        break;
+                }
+                
+                this.selectedObject.filters = filters;
+                this.selectedObject.applyFilters();
+                this.canvas.renderAll();
+                
+                if (effect !== 'reset') {
+                    iziToast.info({
+                        title: 'افکت اعمال شد',
+                        message: `افکت ${effect} اعمال شد`,
+                        position: 'topLeft'
+                    });
+                }
+            }
+
+            addBorder() {
+                if (this.selectedObject) {
+                    this.selectedObject.set({
+                        stroke: '#000000',
+                        strokeWidth: 3
+                    });
+                    this.canvas.renderAll();
+                    this.updateBorderSlider();
+                }
+            }
+
+            addShadow() {
+                if (this.selectedObject) {
+                    this.selectedObject.set('shadow', 'rgba(0,0,0,0.5) 5px 5px 10px');
+                    this.canvas.renderAll();
+                }
+            }
+
+            addGlow() {
+                if (this.selectedObject) {
+                    this.selectedObject.set('shadow', '0 0 20px rgba(59, 130, 246, 0.8)');
+                    this.canvas.renderAll();
+                }
+            }
+
+            removeImageEffects() {
+                if (this.selectedObject) {
+                    this.selectedObject.set({
+                        stroke: null,
+                        strokeWidth: 0,
+                        shadow: null
+                    });
+                    this.canvas.renderAll();
+                    this.updateBorderSlider();
+                }
+            }
+
+            setBorderWidth(width) {
+                if (this.selectedObject) {
+                    this.selectedObject.set('strokeWidth', parseInt(width));
+                    this.canvas.renderAll();
+                }
+            }
+
+            flipHorizontal() {
+                if (this.selectedObject) {
+                    this.selectedObject.set('flipX', !this.selectedObject.flipX);
+                    this.canvas.renderAll();
+                }
+            }
+
+            flipVertical() {
+                if (this.selectedObject) {
+                    this.selectedObject.set('flipY', !this.selectedObject.flipY);
+                    this.canvas.renderAll();
+                }
+            }
+
+            saveDesign() {
+                const dataURL = this.canvas.toDataURL({
+                    format: 'png',
+                    quality: 1,
+                    multiplier: 2
+                });
+                
+                const link = document.createElement('a');
+                link.download = `clothing-design-${Date.now()}.png`;
+                link.href = dataURL;
+                link.click();
+                
+                iziToast.success({
+                    title: 'ذخیره شد',
+                    message: 'طرح با کیفیت بالا ذخیره شد',
+                    position: 'topLeft'
+                });
+            }
+        }
+
+        // راه‌اندازی سیستم
+        document.addEventListener('DOMContentLoaded', () => {
+            const designer = new ClothingDesignSystem();
+            
+            // ایجاد دسترسی جهانی
+            window.designer = designer;
+            
+            console.log('✅ سیستم جامع طراحی لباس بارگذاری شد');
+            console.log('🎯 ویژگی‌های سیستم:');
+            console.log('• ویرایش متن روی لباس');
+            console.log('• ویرایش تصویر روی لباس');
+            console.log('• آپلود لباس سفارشی');
+            console.log('• قالب‌های مختلف لباس');
+            console.log('• مدیریت لایه‌ها');
+            console.log('• افکت‌های متن و تصویر');
+            console.log('• ذخیره با کیفیت بالا');
+        });
+    </script>
+</body>
+</html>
